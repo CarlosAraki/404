@@ -1,0 +1,5 @@
+# arquivo de configuração de dispositivos para o simulador
+
+%leds Contador
+# parâmetros: LEDS PORTA_DADOS
+rryrrgrb 0x90

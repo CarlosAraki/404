@@ -1,0 +1,10 @@
+# arquivo de configuração de dispositivos para o simulador legsim
+
+%7segs Display
+# parâmetros: PORTA_DADOS
+0x30
+
+%timer timer
+# parâmetros: PORTA_DADOS INTERRUPÇÃO
+0x20 0x12
+

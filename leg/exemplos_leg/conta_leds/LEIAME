@@ -1,0 +1,12 @@
+Este exemplo mostra como utilizar leds, usando um contador
+para passar o tempo.
+
+Para executar, use o montador para gerar o arquivo executável:
+
+lasm -o test.exe test.s
+
+e inicie o simulador:
+
+legsim -l test.exe -d devices.txt
+
+No simulador, execute "g _start".

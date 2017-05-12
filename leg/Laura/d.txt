@@ -1,0 +1,5 @@
+%keyboard lok
+0x80 0x81 0x00
+
+%leds Resultado
+rrrrrrrr 0x40

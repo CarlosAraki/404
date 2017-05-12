@@ -1,0 +1,11 @@
+Este exemplo mostra como utilizar o painel de mostradores de sete segmentos.
+
+Para executar, use o montador para gerar o arquivo executável:
+
+lasm -o test.exe test.s
+
+e inicie o simulador:
+
+legsim -l test.exe 
+
+No simulador, execute "g _start".

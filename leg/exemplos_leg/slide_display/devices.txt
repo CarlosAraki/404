@@ -1,0 +1,9 @@
+# arquivo de configuração de dispositivos para o simulador
+
+%7segs Mostrador
+# parâmetro: PORTA_DADOS
+0x90
+
+%slider Sensor
+# parâmetros: PORTA_DADOS INTERRUPÇÃO VALOR_MIN VALOR_MAX VALOR
+0x91 0 0 9 0

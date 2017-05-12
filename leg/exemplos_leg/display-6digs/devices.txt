@@ -1,0 +1,11 @@
+# arquivo de configuração de dispositivos para o simulador
+
+%7segs Relógio
+# parâmetros: PORTA_DADOS
+0x81
+0x82
+0x83
+0x84
+0x85
+0x86
+

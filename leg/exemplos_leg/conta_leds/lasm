@@ -1,0 +1,14 @@
+#!/bin/bash
+
+LEG_DIR=`dirname $0`
+
+if [ "$(uname)" == "Darwin" ]; then
+    # Mac OS X platform        
+     java -jar $LEG_DIR/lasm.jar "$@"
+elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    # Linux platform
+     java -jar $LEG_DIR/lasm.jar "$@"
+elif [ `uname -o` = "Cygwin" ]; then
+     # Cygwin platform
+     java -jar `cygpath -m $LEG_DIR`/lasm.jar "$@"
+fi
