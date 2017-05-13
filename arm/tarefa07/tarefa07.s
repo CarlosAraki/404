@@ -1,7 +1,7 @@
 .global _start
 .org 0x1000
 _start:
-
+/*olar*/
  /* syscall write(int fd, const void *buf, size_t count) */
  mov     r0, #1     @ fd -> stdout
  ldr     r1, =msg   @ buf -> msg
