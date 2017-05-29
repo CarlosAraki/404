@@ -1,0 +1,15 @@
+Para compilar o programa, use digite o comando:
+
+make
+
+ou então execute diretamente:
+
+arm-none-eabi-gcc -o pascal pascal.c ../libc/startup.o ../libc/libnosys_gnu.o -lm -nostartfiles -static
+
+obtendo o arquivo executável de nome "pascal".
+
+Então inicie o simulador com a opção -c (para instanciar a console):
+
+armsim -c -l pascal
+
+No simulador, execute "g _start".

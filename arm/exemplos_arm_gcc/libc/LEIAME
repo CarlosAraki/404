@@ -1,0 +1,9 @@
+Arquivos adicionais para usar gcc com o simulador armsim.
+
+Para compilar, use digite o comando:
+
+make
+
+ou então execute diretamente:
+
+

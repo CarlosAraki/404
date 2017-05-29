@@ -1,0 +1,6 @@
+%buttons boto
+cliqueaqui 0xa0000 0x0 P
+%leds semaforo1
+ryg 0x90000
+%leds semaforo2
+ryg 0x90001

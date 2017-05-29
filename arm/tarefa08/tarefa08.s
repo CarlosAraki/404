@@ -7,7 +7,7 @@ _start:
 	mov  r7, #3					@ write é syscall #3
 	svc  #0x55   				@ executa syscall
 											@tenho meus dados em ascii  no meu buffer  e o numero de caracteres lidos em r0
-	sub r0,r0,#1				@converto meus ascii em binário mas antes verifico se é zero
+											@converto meus ascii em binário mas antes verifico se é zero
 
 	cmp r0,#1 					@verifico se tenho apenas 1 valor que tem q ser o zero
 	mov r5,r0 					@r5 auxiliar de quantidade de dados lidos
@@ -52,6 +52,7 @@ acabou:
 	sub r9,r9,r0
 	sub r0,r0,#1 				@ pq tem 8
 	mov r7,#0
+	mov r6,#0						@ limpo r7 e r6 de memorias lixos de outras vezes que o código foi rodado
 
 pali:
 	cmp r0,r6 					@se o final do vetor ultrapassar a metade acabou

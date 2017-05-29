@@ -1,0 +1,15 @@
+Para compilar o programa, use digite o comando:
+
+make
+
+ou então execute diretamente:
+
+arm-none-eabi-gcc -o hello hello.c ../libc/startup.o ../libc/libnosys_gnu.o -lm -nostartfiles -static
+
+obtendo o arquivo executável de nome "hello".
+
+Então inicie o simulador com a opção -c (para instanciar a console):
+
+armsim -c -l hello
+
+No simulador, execute "g _start".
