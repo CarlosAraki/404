@@ -9,7 +9,6 @@
 
 _start:
 
-
   ldr r0,=verde         @de r0 à r2 terá minhas cores
   ldr r1,=amar
   ldr r2,=verm
@@ -17,8 +16,8 @@ _start:
   ldr r4,=P_sem_s       @r4 terá meu segundo semaforo
   ldr r5,=Botao         @r5 terá meu estado do botão
   mov r6,#0             @r6 será meu estado "comeca no estado 00"
-  str r0, [r3]
-  str r2, [r4]          @atualizo meus valores padrão antes da minha entrada do botão
+  str r0,[r3]
+  str r2,[r4]          @atualizo meus valores padrão antes da minha entrada do botão
 
 botao:
   ldr r7,[r5]
