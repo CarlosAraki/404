@@ -1,0 +1,16 @@
+%timer
+0x90030 7
+
+%7segs semaforo1
+0x90011
+0x90010
+
+%leds semaforo1
+ryg 0x90000
+
+%7segs semaforo2
+0x90021
+0x90020
+
+%leds semaforo2
+ryg 0x90001

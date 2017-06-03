@@ -1,11 +1,11 @@
                         @Carlos Vinícius Araki Oliveira RA:160141
   .global _start
-  .set P_sem_p,0x90000  @Declaração das minhas constantes
-  .set P_sem_s,0x90001
-  .set Botao,0xa0000
-  .set verde,0x1
-  .set verm,0x4
-  .set amar,0x2
+  .EQU P_sem_p,0x90000  @Declaração das minhas constantes
+  .EQU P_sem_s,0x90001
+  .EQU Botao,0xa0000
+  .EQU verde,0x1
+  .EQU verm,0x4
+  .EQU amar,0x2
 
 _start:
 
@@ -17,7 +17,7 @@ _start:
   ldr r5,=Botao         @r5 terá meu estado do botão
   mov r6,#0             @r6 será meu estado "comeca no estado 00"
   str r0,[r3]
-  str r2,[r4]          @atualizo meus valores padrão antes da minha entrada do botão
+  str r2,[r4]           @atualizo meus valores padrão antes da minha entrada do botão
 
 botao:
   ldr r7,[r5]
