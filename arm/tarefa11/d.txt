@@ -1,0 +1,18 @@
+%leds tempo
+ryg 0x90000
+
+%timer
+0x90010 6
+
+%7segs numero
+0x90020
+0x90021
+
+%buttons botao
+aperta 0x90030 0 P
+
+%keyboard Teclado
+0x90040 0x90041 7
+
+%slider velo
+0x90050 0 1 5 1
