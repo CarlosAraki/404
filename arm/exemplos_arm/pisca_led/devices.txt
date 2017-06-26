@@ -1,4 +1,0 @@
-# arquivo de configuração de dispositivos para o simulador
-
-%leds Pisca_Pisca
-r 0x90000

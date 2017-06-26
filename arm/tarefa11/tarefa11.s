@@ -171,12 +171,7 @@ temp_de_espera:
 		ldr r0,=P_LEDS
 		ldr r2,=tab_digitos
 		str r1,[r0]				@coloco o verde no led para começar a contagem do tempo
-		ldr r4,=t_resp
-		ldr r4,[r4]				@r4 tem meu tempo total de resposta
-		ldr r5,=metade
-		ldr r5,[r5]				@r5 tem metade do meu tempo
-		ldr r6,=trequat
-		ldr r6,[r6]				@r6 tem 3/4 do meu tempo de resposta
+
 		ldr r7,=fase			@r7 é o contador de fase
 		ldr r7,[r7]
 		ldr r9,=vetordedados	@r9 tem meu vetor auxiliar de daos q coletei na primeira parte do codigo
@@ -195,11 +190,17 @@ esperoprimeirovalor:
 		str r8,[r0]
 		add r3,r3,#1			@somo 1 no meu contador de tempo
 
-		cmp r3,r4				@verifico se meu contador chegou no tempo final
+		ldr r0,=t_resp
+		ldr r0,[r0]
+		cmp r3,r0				@verifico se meu contador chegou no tempo final
 		bgt perdeu				@se passou o jogador perdeu
-		cmp r3,r6				@verifico se meu contador chegou em 3/4 do tempo
+		ldr r0,=trequat
+		ldr r0,[r0]
+		cmp r3,r0				@verifico se meu contador chegou em 3/4 do tempo
 		bgt ledsvermelhos1
-		cmp r3,r5				@verifico se meu contador chegou na metade do tempo
+		ldr r0,=metade
+		ldr r0,[r0]
+		cmp r3,r0				@verifico se meu contador chegou na metade do tempo
 		bgt ledsamarelos1
 
 		b esperoprimeirovalor	@se nao volto para o loop
@@ -240,11 +241,18 @@ esperosegundovalor:
 		str r8,[r0]
 
 		add r3,r3,#1			@somo 1 no meu contador de tempo
-		cmp r3,r4				@verifico se meu contador chegou no tempo final
-		bgt perdeu				@se nao o jogador perdeu
-		cmp r3,r6				@verifico se meu contador chegou em 3/4 do tempo
+
+		ldr r0,=t_resp
+		ldr r0,[r0]
+		cmp r3,r0				@verifico se meu contador chegou no tempo final
+		bgt perdeu				@se passou o jogador perdeu
+		ldr r0,=trequat
+		ldr r0,[r0]
+		cmp r3,r0				@verifico se meu contador chegou em 3/4 do tempo
 		bgt ledsvermelhos2
-		cmp r3,r5				@verifico se meu contador chegou na metade do tempo
+		ldr r0,=metade
+		ldr r0,[r0]
+		cmp r3,r0				@verifico se meu contador chegou na metade do tempo
 		bgt ledsamarelos2
 
 		b esperosegundovalor	@se nao volto para o loop
@@ -433,17 +441,17 @@ finish:
 		b comeco
 
 tratairq:
-		ldr r8,=flag 			@minha flag de 1 ms será r8
-		mov r0,#1
-		str r0,[r8]
+		ldr r10,=flag 			@minha flag de 1 ms será r8
+		mov r9,#1
+		str r9,[r10]
 		movs pc,lr 				@volto da interrupção
 flag:
 	.word 0
 
 tratainterrupcao:
-		ldr r1,=flag2
-		mov r0,#1
-		str r0,[r1]
+		ldr r5,=flag2
+		mov r4,#1
+		str r4,[r5]
 		movs pc,lr
 
 
