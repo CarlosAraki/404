@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<!-- saved from url=(0054)https://susy.ic.unicamp.br:9999/mc404abe/00/enunc.html -->
+<html lang="pt"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+     <title>MC404 - Tarefa 00 -- Familiarização com as ferramentas LEG</title>
+  </head>
+<body>	
+<h1>MC404 -- Tarefa 00 -- Familiarização com as ferramentas LEG</h1>
+
+<p>
+Nesta tarefa você vai se familiarizar com as ferramentas
+para o processador LEG: o montador (<tt>lasm</tt>) e o
+simulador (<tt>legsim</tt>).
+
+</p><h2>1) Instalando as ferramentas</h2>
+
+<p>O montador <tt>lasm</tt> e o simulador <tt>legsim</tt> são programas em java, que
+você deve copiar para o seu computador. Para instalar os dois programas,
+siga as instruções na página <a href="http://www.ic.unicamp.br/~ranido/livrolm/ferramentas/leg.html">Ferramentas LEG</a>.
+
+</p><p>Opcionalmente, você pode usar um ambiente especialmente preparado para MC404 no <a href="https://susy.ic.unicamp.br:9999/mc404abe/00/c9.io">Cloud 9</a>. Para isso será
+necessário que você envie uma solicitação de registro para <tt>ranido arroba ic ponto unicamp ponto  br</tt>. Você receberá um convite
+que permitirá cadastrar-se no Cloud 9 sem necessidade de informar um cartão de crédito.
+
+</p><h2>2) Tarefa</h2>
+
+<p>Escreva um programa para calcular o valor da expressão
+</p><center>
+<tt>4*(0x5000 + 0x200)</tt>
+</center>
+
+usando apenas os registradores <tt>r0</tt> e <tt>r1</tt>, e
+deixando o resultado no registrador <tt>r0</tt>. O seu programa deve ser montado a partir do endereço <tt>0x200</tt>.
+
+<h3>Parte A: montando o programa manualmente</h3>
+
+<ol>
+<li>Consulte as notas de aula (<a href="http://www.ic.unicamp.br/~ranido/livrolm/transparencias/Cap2.pdf">Introdução a organização de computadores</a> e
+<a href="http://www.ic.unicamp.br/~ranido/livrolm/transparencias/Cap3.pdf">Introdução
+a linguagens de montagem</a>) e determine a codificação das instruções
+necessárias para construir o programa.
+
+</li><li>Abra uma janela de terminal e inicie o simulador <tt>legsim</tt>, digitando
+<br><br>
+<tt>
+legsim
+</tt>
+<br><br>
+no terminal. O programa <tt>legsim</tt> iniciará colocando um "prompt" na tela:
+<center>
+<img src="./MC404 - Tarefa 00 -- Familiarização com as ferramentas LEG_files/tut_legsim_01.png" width="500px">
+</center>
+
+
+</li><li>Insira as instruções manualmente na memória usando o comando <tt>iw</tt> (inspect word), a partir de um
+endereço qualquer (por exemplo, 0x200), digitando
+<br><br>
+<tt>
+iw 200
+</tt>
+<br><br>
+na linha de comando do simulador. <i>Note o simulador utiliza a notação hexadecimal para todos os valores.</i>
+Assim <tt>200</tt> representa o hexadecimal <tt>0x200</tt>.
+
+<p>Para terminar a inspeção de palavras com o comando <tt>iw</tt>, digite um ponto ('.') na linha de comando do simulador.
+Termine seu programa com a instrução "<tt>hlt</tt>" (halt), para parar
+a execução. A instrução <tt>hlt</tt> tem a codificação <tt>0x74000000</tt> e interrompe a execução do processador.
+
+</p><p>Por exemplo, este é o resultado após a inserção da instrução "carrega registrador r1 com o valor constante <tt>0x5000</tt>", seguida
+da instrução "halt":
+
+</p><center>
+<img src="http://www.ic.unicamp.br/~ranido/mc404/labs/images/tut_legsim_02.png" width="500px">
+</center>
+
+
+</li><li>Visualize o que foi inserido na memória com o comando <tt>d</tt> (display memory), a partir
+do endereço inicial do seu programa, usando o comando <tt>d</tt> (display), digitando
+<br><br>
+<tt>
+d 200
+</tt>
+<br><br>
+na linha de comando do simulador. 
+
+<p>Por exemplo, este é o resultado do comando <tt>d</tt> após a inserção das duas instruções acima:
+
+</p><center>
+<img src="./MC404 - Tarefa 00 -- Familiarização com as ferramentas LEG_files/tut_legsim_03.png" width="500px">
+</center>
+
+<p>Note como os bytes são mostrados no comando <tt>d</tt>: para cada
+linha, à esquerda é mostrado o endereço, seguido dos valores de 16
+bytes, seguido da representação em ASCII de cada byte (para o caso de
+os bytes representarem carateres). A cada linha o endereço avança 16 bytes.
+
+</p><p>(O LEG usa a ordem <i>little-endian</i> ou big-endian?)
+
+</p></li><li>Visualize o que foi inserido na memória com o comando <tt>u</tt> (unassemble), a partir
+do endereço inicial do seu programa, digitando
+<br><br>
+<tt>
+u 200
+</tt>
+<br><br>
+na linha de comando do simulador.
+
+<p>Por exemplo, este é o resultado do comando <tt>u</tt> após a inserção das duas instruções acima:
+
+</p><center>
+<img src="./MC404 - Tarefa 00 -- Familiarização com as ferramentas LEG_files/tut_legsim_04.png" width="500px">
+</center>
+
+<p>Observe como o comando <i>desmonta</i> o conteúdo da memória (ou seja, executa 
+a operação inversa do montador: transforma código de máquina em comandos de linguagem de
+montagem). Para cada
+linha, à esquerda é mostrado o endereço, seguido dos valores de 16
+bytes, seguido da representação em ASCII de cada byte (para o caso de
+os bytes representarem carateres). A cada linha o endereço avança 16 bytes.
+
+</p></li><li>Confira os valores dos registradores usando o comando <tt>x</tt> (show status),
+ digitando
+<br><br>
+<tt>
+x
+</tt>
+<br><br>
+na linha de comando do simulador. Esse comando mostra o valor corrente de todos
+os registradores:
+
+<center>
+<img src="./MC404 - Tarefa 00 -- Familiarização com as ferramentas LEG_files/tut_legsim_05.png" width="500px">
+</center>
+
+Note que todos os registradores têm o valor zero, inclusive o registrador apontador de 
+instruções <tt>ip</tt> (porque o processador acabou de ser "ligado").
+
+</li><li>Execute o seu programa com o comando <tt>g</tt> (go), a partir
+do endereço inicial do seu programa (<tt0x200< tt="">), digitando
+<br><br>
+<tt>
+g 200
+</tt>
+<br><br>
+na linha de comando do simulador.
+
+<p>O processador executa o programa (duas instruções, no nosso exemplo!), e ao encontrar a instrução
+"halt" interrompe a execução. Ao parar a execução, o simulador informa a razão ("HALT at 0x208"), o
+estado dos registradores e a próxima instrução a ser executada (a instrução HLT é um caso especial,
+pois o processador não executa mais nenhuma instrução, por isso no exemplo abaixo a proxima
+instrução a ser executada é a mesma instrução HLT, no mesmo endereço de memória).
+
+</p><center>
+<img src="./MC404 - Tarefa 00 -- Familiarização com as ferramentas LEG_files/tut_legsim_06.png" width="500px">
+</center>
+
+<p>Observe que o registrador <tt>r1</tt> teve o seu valor alterado para <tt>0x5000</tt> no caso do nosso exemplo.
+No caso do seu programa, verifique que o valor do registrador <tt>r0</tt> tem o valor correto do resultado da
+expressão dada, como solicitado na tarefa deste laboratório.
+
+</p></tt0x200<></li><li>Apenas para mostrar outras funcionalidades, altere os valores dos registradores <tt>r0</tt> e <tt>r1</tt>, para iniciar uma nova execução 
+do programa, usando o comando  <tt>r</tt> (display and alter register), digitando os comandos
+<br><br>
+<tt>
+r r0<br>
+r r1
+</tt>
+<br><br>
+na linha de comando do simulador (o simulador indica o valor corrente do registrador, você pode entrar com um novo valor):
+
+<center>
+<img src="./MC404 - Tarefa 00 -- Familiarização com as ferramentas LEG_files/tut_legsim_07.png" width="500px">
+</center>
+
+
+</li><li>Use o comando <tt>x</tt> (show status) para 
+mostrar o novo estado dos registradores:
+
+<center>
+<img src="./MC404 - Tarefa 00 -- Familiarização com as ferramentas LEG_files/tut_legsim_08.png" width="500px">
+</center>
+
+<p>Note que os registradores <tt>r0</tt> e <tt>r1</tt> têm novos valores.
+
+</p></li><li>Execute o seu programa passo-a-passo (uma instrução por vez), com comandos <tt>s</tt> (step) sucessivos, a partir
+do endereço inicial do seu programa. Inicie digitando
+<br><br>
+<tt>
+s 200
+</tt>
+<br><br>
+na linha de comando do simulador. O simulador vai executar uma instrução e parar, mostrando um trecho de programa
+"desmontado" da memória, com a próxima instrução em destaque (highlighted), seguida do estado dos registradores:
+
+<center>
+  <img src="./MC404 - Tarefa 00 -- Familiarização com as ferramentas LEG_files/tut_legsim_09.png" width="500px">
+</center>
+
+</li><li>Para executar a próxima instrução, use novamente o comando <tt>s</tt> (dessa vez sem indicar o endereço inicial).
+Ou mais simplesmente, tecle "entra" ("return"), pois o simulador sempre executa o comando anterior (<tt>s</tt> nesse caso)
+quando a linha de comando é vazia. Execute todas as instruções de seu programa e vá conferindo o valor dos registradores.
+
+
+</li><li>Para terminar a simulação, use o comando <tt>q</tt> (quit), que termina a execução do simulador.
+
+<center>
+  <img src="./MC404 - Tarefa 00 -- Familiarização com as ferramentas LEG_files/tut_legsim_10.png" width="500px">
+</center>
+
+</li></ol>
+
+
+<h3>Parte B: montando o programa com o montador LEG (lasm)</h3>
+
+
+<ol>
+<li>Usando um editor de texto, escreva um programa usando as instruções <tt>set</tt> e <tt>add</tt> vistas em aula. Use a diretiva
+<tt>.org 0x200</tt> para que seu programa seja montado a partir do endereço 0x200. Nomeie o arquivo do programa por exemplo de tarefa00.s.
+
+<p>Aqui está um exemplo de programa contendo apenas duas instruções:
+
+</p><pre>@ meu primeiro programa
+
+    .org 0x200
+
+start:                 @ um rótulo padrão, vamos usar no Susy
+    set   r0, 0x5000   @ uma instrução exemplo
+    hlt                @ esta instrução faz com que o montador interrompa
+                       @ a execução
+</pre>
+
+</li><li>Abra uma janela de terminal use o montador <tt>lasm</tt> para montar o seu programa, digitando
+<br><br>
+<tt>
+lasm -o tarefa00 tarefa00.s
+</tt>
+<br><br>
+no terminal. Esse comando cria um arquivo de nome <tt>tarefa00</tt>, que é um arquivo binário contendo o seu programa.
+
+</li><li>Abra uma janela de terminal e inicie o simulador <tt>legsim</tt>, carregando o seu programa,
+digitando
+<br><br>
+<tt>
+legsim -l tarefa00
+</tt>
+<br><br>
+no terminal.
+
+</li><li>Execute o seu programa
+digitando
+<br><br>
+<tt>
+g start
+</tt>
+<br><br>
+no terminal. Observe que você pode usar no simulador rótulos definidos no seu programa (como <tt>start</tt>).
+Verifique o registrador <tt>r0</tt> tem o resultado correto da expressão dada.
+
+</li><li>Submeta o seu programa-fonte em linguagem de montagem do LEG, usando o sistema Susy.
+O arquivo de submissão deve chamar-se <tt>tarefa00.s</tt>, e a primeira instrução de seu programa deve estar
+no endereço <tt>0x200</tt>.
+
+</li></ol>
+
+<h3>Peso</h3>
+O peso deste lab na composição da nota é 1.
+
+	
+	
+
+</body></html>

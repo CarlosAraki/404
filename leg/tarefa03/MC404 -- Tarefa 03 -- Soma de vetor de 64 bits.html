@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<!-- saved from url=(0054)https://susy.ic.unicamp.br:9999/mc404abe/03/enunc.html -->
+<html lang="pt"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+     <title>MC404 -- Tarefa 03 -- Soma de vetor de 64 bits</title>
+  </head>
+<body>	
+<h1>MC404 -- Tarefa 03 -- Soma de vetor de 64 bits</h1>
+
+<p>
+</p><h3>Parte A</h3>
+<p>Escreva uma função de nome <i>add64</i> com dois parâmetros, que são números inteiros sem sinal de 64 bits, passados pela pilha,
+e calcule a soma desses dois números, retornando o resultado nos registradores
+r1 (palavra mais significativa do resultado) e 
+r0 (palavra menos significativa do resultado). Sua função pode desconsiderar erros de estouro de campo.
+
+</p><p>Cada parâmetro de 64 bits é empilhado da seguinte forma: primeiro é empilhada a palavra (32 bits) mais significativa, depois a palavra (32 bits) menos significativa
+do parâmetro. 
+
+</p><p>Por exemplo, se os argumentos da função são 
+</p><center>
+<tt>0x11111111AAAAAAAA</tt> e <tt>0x22222222AAAAAAAA</tt>
+</center>
+<p>
+respectivamente, em decimal, 
+
+<tt>1229782940824283818</tt> e <tt>2459565878785256106</tt>, a pilha no momento da
+execução da função é:
+</p><pre>   |          |
+   ------------
+   | 11111111 |
+   ------------
+   | AAAAAAAA |
+   ------------
+   | 22222222 |
+   ------------
+   | AAAAAAAA | &lt;-- sp
+   ------------
+   |          |
+
+</pre>
+e o resultado deve ser
+
+<center>
+<tt>r1=0x33333334</tt> e <tt>r0=0x55555554</tt>
+</center>
+
+<p>
+Por razões de testes no Susy, o início da função (rótulo <i>add64</i>)
+deve estar no endereço 0x1000.
+
+</p><h3>Parte B</h3>
+<p>Escreva um trecho de programa, cujo endereço de início é 0x2000 e tem rótulo <i>init</i>, que calcule a
+soma dos elementos de um vetor de números de 64 bits, deixando o resultado nos registradores
+r1 (parte mais significativa do resultado) e r0 (parte menos significativa do resultado). O vetor, com um máximo de 100 elementos,
+está armazenado a partir do endereço 0x104, de rótulo <i>vetor</i>. O número de elementos está armazenado
+em uma palavra de 32 bits de rótulo <i>num_elem</i> (inteiro sem sinal), no endereço 0x100.
+
+</p><p>Você pode assumir que o número de elementos do vetor é maior ou igual a 1.
+
+</p><p>Assuma que na memória, um número de 64 bit é armazenado da seguinte forma: 
+</p><ul>
+<li>a palavra menos significativa (32 bits) é armazenada no endereço <i>X</i> e
+</li><li>a palavra mais significativa (32 bits) é armazenada no endereço <i>X+4</i>.
+</li></ul>
+
+<p>
+A primeira instrução a ser executada pelo seu programa deve estar no endereço de
+rótulo <tt>init</tt>. Lembre que você tem que reservar espaço para a pilha e inicializar o registrador apontador de pilha (sp).
+
+</p><p>
+Ao terminar seu programa deve executar a instrução HLT (interrompe processamento).
+
+
+</p><h3>Submissão</h3>
+Você deve submeter o seu programa-fonte em linguagem de montagem LEG. O arquivo de submissão deve chamar-se <tt>tarefa03.s</tt>.
+O número máximo de submissões no Susy é 10. Teste exaustivamente seu programa localmente, usando o simulador LEG; não use o 
+Susy como ferramenta de teste!
+
+<h3>Peso</h3>
+O peso deste lab na composição da nota é 1.
+
+
+	
+	
+
+</body></html>

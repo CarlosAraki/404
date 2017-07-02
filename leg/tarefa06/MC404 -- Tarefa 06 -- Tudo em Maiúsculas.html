@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!-- saved from url=(0054)https://susy.ic.unicamp.br:9999/mc404abe/06/enunc.html -->
+<html lang="pt"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+     <title>MC404 -- Tarefa 06 -- Tudo em Maiúsculas</title>
+  </head>
+<body>	
+<h1>MC404 -- Tarefa 06 -- Tudo em Maiúsculas</h1>
+
+<p>
+Escreva um programa que leia do console uma cadeia de caracteres ASCII, com no
+máximo 256 caracteres, transforme as letras minúsculas da cadeia em maiúsculas, e
+escreva o resultado de volta no console. Ao final o registrador <tt>r10</tt> deve conter o número
+de letras que foram alteradas.
+
+</p><p>Para escrever no console
+seu programa deve usar as chamadas ao sistema <tt>read</tt> e <tt>write</tt>. Consulte no 
+<a href="http://www.ic.unicamp.br/~ranido/livrolm/documentos/manual_dispositivos.html">manual
+de dispositivos</a> a forma de utilização do console.
+
+</p><p>Para a chamada <tt>read</tt> o vetor onde devem ser armazenados os bytes lidos deve
+estar obrigatoriamente no endereço <tt>0x2000</tt>.
+
+</p><p>Ao término da execução, seu programa deve usar a chamada ao sistema <tt>exit(0)</tt>. 
+
+</p><p>A primeira instrução a ser executada pelo seu programa deve estar no endereço de
+rótulo <tt>init</tt>. Lembre que você tem que reservar espaço para a pilha, inicializar o registrador apontador de pilha (sp).
+
+</p><p>
+Por razões de testes no Susy, você não deve utilizar a memória abaixo do endereço 0x1000.
+
+</p><h3>Exemplo</h3>
+
+Se a cadeia de entrada for
+
+<pre>Meu burro custou R$ 100,00, mas nao o vendo por dinheiro algum.
+</pre>
+a saída no console deve ser
+<pre>MEU BURRO CUSTOU R$ 100,00, MAS NAO O VENDO POR DINHEIRO ALGUM.
+</pre>
+e o registrador <tt>r10</tt> deve conter o valor  0x29 (41 em decimal). 
+
+<p>Note que as letras na entrada não são acentuadas (a codificação é ASCII).
+
+
+</p><h3>Entrada</h3>
+A entrada é feita pelo console.
+
+<h3>Saída</h3> 
+
+A saída é feita através do console e do registrador r10.
+
+<p>
+<i>Esta tarefa não pode ser feita no Cloud 9, pois este não tem suporte para elementos gráficos como o console!</i>
+
+</p><h3>Submissão</h3> Você deve submeter o seu programa-fonte em
+linguagem de montagem LEG. O arquivo de submissão deve
+chamar-se <tt>tarefa06.s</tt>.  O número máximo de submissões no Susy
+é 10. Teste exaustivamente seu programa localmente, usando o simulador
+LEG; não use o Susy como ferramenta de teste!
+
+<h3>Peso</h3>
+O peso deste lab na composição da nota é 1.
+
+
+
+<h3>Dicas</h3>
+<ul>
+<li>O parâmetro r0 da chamada ao sistema <tt>exit</tt> deve ser igual
+a zero, para indicar que o programa terminou de executar sem erros.
+</li><li>Note que a diferença na representação ASCII entre uma letra
+maiúscula e uma minúscula é apenas um bit; portanto basta trocar o
+valor desse bit para transformar uma letra de maiúscula para minúscula
+(e vice-versa).
+</li><li>Veja nas notas de aula um exemplo de programa que usa chamada a sistema.
+</li><li>Note que é necessáro usar a opção "-c" do legsim  para "caregar" o dispositivo console na
+simulação (<tt>legsim -c</tt>).
+<ul>
+
+	
+	
+</ul></li></ul></body></html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<!-- saved from url=(0054)https://susy.ic.unicamp.br:9999/mc404abe/08/enunc.html -->
+<html lang="pt"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+     <title>MC404 - Tarefa 08 -- Palíndromo em bits</title>
+  </head>
+<body>	
+<h1>MC404 -- Tarefa 08 -- Palíndromo em bits</h1>
+
+<p>
+
+</p><p>Escreva um programa em linguagem de montagem ARM para 
+
+</p><ol>
+<li> ler do console uma cadeia de caracteres hexa (0-9 e A-F); o número de caracteres lidos pode estar entre 1 e 8 (o valor tem no  máximo 32 bits).
+</li><li> verificar se o valor hexa que essa cadeia representa 
+é um palíndromo em bits
+</li><li> escrever no console uma linha contendo o caractere 'N'
+se for palíndromo, ou o caractere 'S' caso contrário (não se esqueça
+do caractere final de linha, '\n')
+</li></ol>
+
+O seu programa deve terminar  quando o valor de entrada for zero 
+(utilize a chamada a sistema <tt>exit</tt> para
+terminar a execução de seu programa).
+
+<p>Um valor é palíndromo em bits quando, na sua representação
+binária, os bits lidos da esquerda para a direita são os
+iguais aos bits lidos da direita para a esquerda. Por exemplo,
+os valores 0x88800111 0x40000002 são palíndromos,
+mas os valores 0x88888888 e 0x11111111 não são palíndromos.
+Note que na entrada pela console o prefixo '0x' não é utilizado.
+
+</p><p>Por exemplo, se for digitado no console 8888111, 
+seu programa deve escrever uma linha contendo apenas a letra `S'
+no console. A seguir, se for digitado no console 1111, 
+seu programa deve escrever uma linha contendo apenas a letra `N'
+no console. A seguir, se for digitado no console 0, seu programa
+deve parar de executar, executando a chamada a sistema <tt>exit</tt>. 
+
+</p><h3>Submissão</h3> Você deve submeter o seu programa-fonte em
+linguagem de montagem ARM. O arquivo de submissão deve
+chamar-se <tt>tarefa08.s</tt>, e a primeira instrução de seu programa
+deve estar no endereço de rótulo <tt>_start</tt>.
+
+
+<p>
+O número máximo de submissões no Susy
+é 10. Teste exaustivamente seu programa localmente, usando o simulador
+<tt>armsim</tt>; não use o Susy como ferramenta de teste!
+
+
+</p><h3>Peso</h3>
+O peso deste lab na composição da nota é 1.
+
+	
+	
+
+</body></html>

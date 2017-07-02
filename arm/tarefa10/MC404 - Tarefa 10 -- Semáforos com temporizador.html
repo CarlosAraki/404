@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<!-- saved from url=(0054)https://susy.ic.unicamp.br:9999/mc404abe/10/enunc.html -->
+<html lang="pt"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+     <title>MC404 - Tarefa 10 -- Semáforos com temporizador</title>
+  </head>
+<body>	
+<h1>MC404 -- Tarefa 10 -- Semáforos com temporizador</h1>
+
+<p>Nesta tarefa vamos exercitar o uso de interrupções, e também usar um novo dispositivo: o
+temporizador (timer). 
+
+</p><p>O temporizador é um dispositivo que gera uma interrupção a cada
+intervalo de tempo programado.  O temporizador tem apenas uma porta
+de dados, de escrita apenas, que é usada para programar o intervalo de tempo.
+Escrever um valor X na porta do temporizador faz com que o
+temporizador gere uma interrupção a cada X milisegundos. Escrever o valor
+zero na porta do temporizador faz com que o temporizador pare de
+gerar interrupções.
+
+No arquivo de dispositivos para o simulador <tt>armsim</tt>, o formato de descrição de um temporizador é:
+
+</p><pre>%timer
+PORTA INT
+</pre>
+
+<p>PORTA é o endereço da porta de dados, e INT é o tipo de interrupção
+associado.
+
+</p><p>Para usar interrupções no ARM, é preciso preparar as pilhas dos modos que vamos usar,
+e inicializar o vetor de interrupções, antes de entrar no modo usuário e habilitar 
+interrupções. <a href="http://www.ic.unicamp.br/~ranido/mc404/labs/button_led_int.zip">Veja aqui um
+programa exemplo</a> que usa interrupção. Para mudar de um modo de execução para outro (por exemplo
+Supervisor para IRQ), durante a preparação, você deve usar uma instrução especial, <tt>msr</tt>.
+Note no entanto que o uso dessa instrução somente é permitido em modos privilegiados -- uma vez
+que seu programa está em modo Usuário ele não tem mais privilégio para mudar de modo. Veja mais
+detalhes no exemplo e nas notas de aula.
+
+</p><h3>Tarefa</h3>
+Escreva um programa  em linguagem de montagem ARM para 
+controlar os semáforos de cruzamento de duas ruas. O programa deve
+controlar dois semáforos (um para cada rua), cada um com três luzes,
+vermelha, amarela e verde, além de um mostrador de dois dígitos
+para indicar o tempo que falta para mudança de estado do semáforo,
+similar ao semáforo da figura abaixo:
+
+<center>
+<img src="./MC404 - Tarefa 10 -- Semáforos com temporizador_files/semaforo_timer.jpg" width="200px">
+</center>
+
+<p>A mudança de estado é feita automaticamente, a cada 30 segundos, controlada pelo temporizador.
+A cada interrupção do temporizador, os semáforos devem mudar de
+estado, sequencialmente abrindo e fechando o tráfego das ruas. Ou seja,
+os semáforos devem estar sequencialmente nos estados Estado1, Estado2, Estado3, Estado2, Estado1, Estado2...
+onde 
+</p><ul>
+<li>Estado1 representa verde para a rua <i>Rua1</i> e  vermelho para a rua <i>Rua2</i>,
+</li><li>Estado2 representa amarelo para as duas ruas, e 
+</li><li>Estado3 representa vermelho para a rua  <i>Rua1</i> e  verde para para a rua  <i>Rua2</i>.
+</li></ul>
+
+Adicionalmente, o mostrador de dois dígitos associado ao semáforo (note que há
+dois mostradores, um para cada rua) deve mostrar o número de segundos
+que restam para a mudança do estado aberto (verde) para o estado
+fechado (vermelho). A partir do momento em que o mostrador indica
+que faltam cinco segundos para a mudança, a luz amarela do semáforo deve ser acesa
+(e, obviamente, a verde e a vermelha devem ser apagadas).
+
+<p>No início do programa, o sinal deve estar verde para o semáforo da porta 0x90000 e vermelho para o semáforo da porta 0x90001,
+e os mostradores devem estar com o valor 30.
+
+</p><p>
+O rótulo da primeira posição de seu programa deve ser "_start". Os
+endereços das portas dos dispositivos devem ser:
+
+</p><ul>
+<li>Semáforo 0:
+<ul>
+<li>Leds: 0x90000
+</li><li>Mostradores de sete segmentos: 0x90010 (menos significativo) e 0x90011 (mais significativo) 
+</li></ul>
+</li><li>Semáforo 1:
+<ul>
+<li>Leds: 0x90001
+</li><li>Mostradores de sete segmentos: 0x90020 (menos significativo) e 0x90021 (mais significativo) 
+</li></ul>
+</li><li>Temporizador: 0x90030, interrupção FIQ
+</li></ul>
+
+
+Nos dois semáforos, o led mais à esquerda é o
+vermelho. No início do programa, o sinal deve estar verde para o
+semáforo da porta 0x90000 e vermelho para o semáforo da porta 0x90001.
+
+<h3>Uso de arquivo de configuração para o ligador ARM/GCC</h3>
+Para que vocês possam acessar a memória desde o endereço 0x0000 (e assim
+inicializar o vetor de interrupções), é necessário fornecer um arquivo
+de configuração para o ligador (executável arm-none-eabi-ld).
+
+<p>O arquivo de configuração de configuração deve conter as linhas
+
+</p><pre>SECTIONS {
+         . = 0x00000000;
+.text : { * (.text); }
+. = 0x00010000;
+.data : { * (.data); }
+}
+</pre>
+
+<p>Veremos em uma aula futura o que esse arquivo especifica; mas sem esse arquivo o
+ligador não deixa que utilizemos o início da memória.
+
+</p><p>Devemos fornecer esse arquivo na linha de comando do ligador, com a opção '-T'. Assim, se você
+nomear esse arquivo como "mapa.lds", para
+montar o seu programa você deve utilizar por exemplo:
+
+</p><pre>$ arm-none-eabi-as -o tarefa10.o tarefa10.s
+$ arm-none-eabi-ld -o tarefa10 -Tmapa.lds tarefa10.o
+</pre>
+
+<p> 
+</p><h3>Submissão</h3> Você deve submeter o seu programa-fonte em
+linguagem de montagem ARM. O arquivo de submissão deve
+chamar-se <tt>tarefa10.s</tt>, e a primeira instrução de seu programa
+deve estar no endereço de rótulo <tt>_start</tt>.
+
+<h3>Verificação do funcionamento</h3>
+A verificação da corretude do funcionamento NÃO será automática. Você deve fazer a entrega pelo Susy dentro do prazo
+especificado, e demonstrar a execução de seu código presencialmente para um monitor ou professor, na aula de lab. Se você não
+terminar a tarefa na aula de lab correspondente, ele deve ser demonstrado na aula seguinte de laboratório.
+
+<p>
+O número máximo de submissões no Susy
+é 10. 
+
+
+</p><h3>Dicas</h3>
+<ul>
+
+<li>Os nomes dos painéis não são fixos; você pode usar o que quiser. Mas os endereços dados acima devem ser obedecidos.
+</li><li>Organize o seu código de forma que o programa execute o menor tempo possível na rotina de tratamento de interrupção.
+Embora no caso deste lab isso não tenha muita importância, já que há apenas uma interrupção, em um sistema real
+há em geral várias outras interrupções, de forma que a melhor forma de garantir que todas as interrupções serão atendidas
+é executar o programa, sempre que possível, em modo usuário.
+</li></ul>
+
+
+
+
+<h3>Peso</h3>
+O peso deste lab na composição da nota é 1.
+
+	
+	
+
+</body></html>
