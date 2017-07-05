@@ -1,489 +1,377 @@
-                                        @Carlos Vinícius Araki Oliveira RA:160141
-.global _start
-.EQU verde,0x1
-.EQU verm,0x4
-.EQU amar,0x2
-.EQU P_LEDS,0x90000        	@Declaração das minhas constantes e modos de interrupção
-.EQU P_TIMER,0x90010
-.EQU P_7menos,0x90020
-.EQU P_7mais,0x90021
-.EQU P_botao,0x90030
-.EQU P_teclado_dado,0x90040
-.EQU P_teclado_estado,0x90041
-.EQU P_slider,0x90050
-.equ IRQ, 0x80
-.equ FIQ, 0x40
-.equ irf, 0xc0
-.equ FIQ_MODE,0x11+FIQ+IRQ
-.equ IRQ_MODE,0x12+FIQ+IRQ
+@Créditos ao Monstro(lago) que fizemos juntos esse
+
+.global	_start				 				 				@ istanciando inicio do montador
+
+.equ		FIQ		,0x40
+.equ		FIQ_MODE	,0x11
+.equ		USER_MODE	,0x10
+
+.set		botao		,0x90000							@ enderecos dos dispositivos
+.set		keyboardD	,0x90020
+.set		keyboardE	,0x90021
+.set		leds		,0x90035
+.set		mostrador1	,0x90040
+.set		mostrador2	,0x90041
+.set		slider		,0x90050
+.set		timer		,0x90030
+.set		desliga		,0x00
+
+.set		verde		,0x01								@ constantes de cores
+.set		amarelo		,0x02
+.set		vermelho	,0x04
+
+.set		desligado	,0x00
+.set		ligado		,0x01
+
+.org        7*4                 							@ preenche apenas a posição 7 (FIQ)
+		b		tratador_interrupcao
+
+.org        0x800
 
 
-.equ USER_MODE,0x10
 
-.text
-
-.org 6*4
-	b tratairq
-     		          			@ preenche apenas a posição 7 (fiq)
-.org 7*4
-	b tratainterrupcao
-
-.org 0x1000 					@Pulo um espaço para nao ficar próximo ao meu vetor de interrupções
 _start:
-    	mov sp,#0x400       	@ seta pilha do modo supervisor
-    	mov r0,#FIQ_MODE    	@ coloca processador no modo fiq (interrupção externa)
-    	msr cpsr,r0         	@ instrução especial, processador agora no modo fiq
-    	mov sp,#0x300       	@ seta pilha de interrupção do modo fiq
-		mov r0,#IRQ_MODE		@para irq
-		msr cpsr,r0
-		mov sp,#0x500
-    	mov r0,#USER_MODE   	@ coloca processador no modo usuário
-    	bic r0,r0,#(irf)    	@ com interrupções fiq/irq habilitadas
+		mov 		sp,#0x400       						@ seta pilha do modo supervisor
+		mov		r0,#FIQ_MODE    							@ coloca processador no modo FIQ (interrupção externa)
+		msr 		cpsr,r0         						@ instrução especial, processador agora no modo FIQ
+		mov		sp,#0x300       							@ seta pilha de interrupção do modo FIQ
+		mov		r0,#USER_MODE   							@ coloca processador no modo usuário
+		bic		r0,r0,#(FIQ)    							@ com interrupções FIQ habilitadas
+		msr		cpsr,r0         							@ instrução especial, processador agora no modo usuário
+		mov		sp,#0x80000									@ inicia a pilha de USER_MODE
+															@ setup do jogo
+		mov		r5,#1										@ coloca 1 em r5 que funcionara como a variavel que guarda a fase do jogo
+		mov		r7,#0										@ coloca 0 em r7 que salva a dificuldade do jogo
+deslig:
 
-    	msr cpsr,r0         	@ instrução especial, processador agora no modo usuário
-    	mov sp,#0x80000     	@ seta pilha do usuário no final da memória
+		ldr		r4,=desligado								@ zera r4 para que ele sirva de flag do botao quando o jogo esta desligado
+		ldr		r4,[r4]
+		ldr		r6,=desligado								@ seta r6 para saber o estado do jogo
+		ldr		r6,[r6]
+		ldr		r1,=desliga									@ seta r1 para apagar os leds, os mostradores e o timer
+		ldr		r1,[r1]
+		ldr		r0,=timer									@
+		str		r1,[r0]										@ desliga o timer
+		ldr		r0,=leds									@
+		str		r1,[r0]										@ apaga os leds
+		ldr		r0,=mostrador1								@
+		str		r1,[r0]										@ apaga o primeiro mostrador
+		ldr		r0,=mostrador2								@
+		str		r1,[r0]										@ apaga o segundo mostrador
 
-comeco:
-		ldr r0,=P_botao
-		ldr r0,[r0]
-		cmp r0,#1
-		bne comeco				@enquanto o estado do meu botão for 0 volto para a espera da minha entrada
+loop_deslig:
+		cmp		r4,#1										@ verifica se o botao foi pressionado
+		bne		loop_deslig									@ volta ao loop caso o botao nao tenha sido pressionado
 
-		ldr r0,=P_slider
-		ldr r0,[r0]
-		ldr r1,=velo
-		str r0,[r1]				@velocidade do meu programa deve seguir
-		sub r0,r0,#1
+lig:
 
-		mov r2,#100				@são 100 ms
-		mul r3,r2,r0 			@r3 tem o tempo perdido pelo slider
+		mov		r4,#0										@ zera r4 para que ele sirva como contador de numeros mostrados quando o jogo esta ligado
+		mov		r6,#1										@ coloca r6 com 1 para indicar que o jogo esta ligado
 
-		mov r2,#2000			@são 2 segundos
-		sub r2,r2,r3 			@valor de r2 tem o tempo rela do tempo ligado
-		ldr r1,=t_ligado
-		str r2,[r1]				@coloco esse valor na minha variável t_ligado
+gera_numeros:
+		cmp		r4,r5										@ compara a quantidade de numeros mostrados com a fase do jogo
+		bge		resposta_jogador							@ caso ja tenha mostrado todos os numeros vai esperar a entrada do jogador
+		bl		genrand_int32								@ chama o gerador de numeros aleatorios que retorna o numero em r0 para o numero menos significativo
+		mov		r1,#0x0f									@ coloca 15 em r1
+		and		r0,r1										@ limita o numero gerado para ser entre 0 e 15
+		cmp		r0,#10										@ comparo r0 com 10
+		subge	r0,r0,#10									@ subtraio 10 do numero caso seja maior que 10
+		addge	r0,r0,#3									@ somo 3 ao numero para tentar manter a aleatoriedade do numero randomico mas mantendo-o entre 0 e 9
+		ldr		r1,=sequencia_dezena						@
+		add		r1,r1,r4									@ vou ate a casa do vetor correspondente a quantidade de numeros que ja foram gerados
+		strb	r0,[r1]										@ guardo o numero gerado no vetor da unidade
+		ldr		r1,=vetor_mostrador							@
+		add		r1,r1,r0									@ pega o endereco do numero correspondente
+		ldrb	r1,[r1]										@ pego o valor em 7seg correspondente ao numero
+		ldr		r0,=mostrador1								@
+		str		r1,[r0]										@ coloca o valor no mostrador menos significativo
+		bl		genrand_int32								@ chama o gerador de numeros aleatorios que retorna o numero em r0 para o numero mais significativo
+		mov		r1,#0x0f									@
+		and		r0,r1										@ limita o numero gerado para ser entre 0 e 15
+		cmp		r0,#10										@ comparo r0 com 10
+		subge	r0,r0,#10									@ subtraio 10 do numero caso seja maior que 10
+		addge	r0,r0,#3									@ somo 3 ao numero para tentar manter a aleatoriedade do numero randomico mas mantendo-o entre 0 e 9
+		ldr		r1,=sequencia_unidade						@
+		add		r1,r1,r4									@ vou ate a casa do vetor correspondente a quantidade de numeros que ja foram gerados
+		strb	r0,[r1]										@ guardo o numero gerado no vetor da dezena
+		ldr		r1,=vetor_mostrador							@
+		add		r1,r1,r0
+		ldrb	r1,[r1]										@ pego o valor em 7seg correspondente ao numero
+		ldr		r0,=mostrador2
+		str		r1,[r0]										@ coloca o valor no mostrador mais significativo
+		add		r4,r4,#1									@ incremento a quantidade de numeros mostrados
+		b		mostra_numeros
 
-		mov r2,#1000			@é 1 segundo
-		sub r2,r2,r3
-		ldr r1,=t_desligado
-		str r2,[r1]				@coloco meu tempo desligado na minha variável
+resposta_jogador:
 
-		mov r1,#500 			@são 500 ms
-		mul r2,r1,r0 			@vejo quantos segundos sao perdidos
-		ldr r0,=cincoseg		@sao 5s
-		ldr r0,[r0]
-		sub r1,r0,r2			@subtraio a variação de resposta da velocidade do slider
-		ldr r0,=fase
-		ldr r0,[r0]
-		mul r2,r1,r0 			@multiplico para saber o tempo de resposta que está em r0
-		ldr r1,=t_resp
-		str r2,[r1]				@coloco meu tempo encontrado no tempo de resposta
-		mov r1,r2,lsr#1			@divido meu valor por 2
-		ldr r0,=metade
-		str r1,[r0]				@coloco na minha variavel metade
-		mov r1,r2,lsr#2 		@divido meu valor por 4
-		mov r0,#3				@coloco 3 no meu r0
-		mul r2,r1,r0 			@multiplico os 2
-		ldr r1,=trequat
-		str r2,[r1]				@coloco meu valor de 3/4 do tempo total em trequat
-		ldr r0,=P_TIMER
-		mov r1,#1
-		str r1,[r0]				@coloco 1ms de interrupção (é o menor possivel graças ao 3/4 do led vermelho .-.)
-		ldr r9,=vetordedados	@r4 terá meu vetor de dados
+		ldr		r1,=tempo_resposta
+		add		r1,r1,r7									@ ajusta o tempo de resposta a dificuldade do jogo
+		ldr		r1,[r1]										@ pega o valor do vetor
+		mul		r1,r5,r1									@ multiplica o tempo de resposta com a fase
+		mov		r0,#0										@ coloca 0 em r0
+		mov		r8,r1,lsr #2								@ shift right de dois bits dividindo r1 por 4
+		mov		r9,r1,lsr #1								@ divide r1 por 2
+		mov		r3,#0										@ garante que nao ha lixos em r3
+		mov		r4,#0										@ zera r4 para ser o contador de numeros da seuqencia
 
-seq:							@gero a sequencia de numeros random
-		ldr r4,=fase  			@primeiro meu contador
-		ldr r4,[r4]
-seqliga:
-		subs r4,#1				@subtraio 1 no meu contador
-		blt temp_de_espera
-		ldr r0,=numeros        	@ carrega primeiro parâmetro
-		mov r1,#4           	@ carrega segundo parâmetro
-		bl  init_by_array   	@ inicializa
-		bl  genrand_int32  		@ chama gerador, resultado em r0
-		mov r1,#0xf				@minha mascara
-		and r0,r0,r1			@só fica ligado os 4 ultimos bits
-		cmp r0,#9				@comparo para ver se é maior q o numero comportado
-		movgt r0,#0 			@se for maior é automaticamente 0
-		ldr r6,=tab_digitos		@r6 tem o começo co meu vetor de digitos
-		ldrb r1,[r6,r0]  		@pego byte do valor no meu veotr de tab_digitos
-		ldr r0,=P_7menos
-		str r1,[r0]				@coloco no 7 seg
-		strb r1,[r9],#1 		@ coloco no meu vetor e pulo para o proximo elemento
+loop_resposta_jogador:
 
+		cmp		r1,r9										@ compara o tempo restante com metade do tempo
+		ldreq	r2,=amarelo
+		ldrgt	r2,=verde
+		cmp		r1,r8										@ compara o tempo restante com 1/4 do tempo
+		ldreq	r2,=vermelho
+		cmp		r1,#0										@ compara o tempo restante com 0
+		ble		jogador_perdeu								@ caso o tempo tenha estourado ele pula para a funcao jogador errou
+		ldr		r0,=leds
+		str		r2,[r0]										@ acende o led correspondente ao tempo restante
+		cmp		r3,#1										@ compara r3 com 1 para saber se a interrupcao do teclado ocorreu
+		ldreq	r2,=sequencia_dezena_jogador
+		ldreqb	r2,[r2]										@ pega o valor que esta guardado na variavel
+		ldreq	r0,=vetor_mostrador
+		addeq	r2,r2,r0									@ pega o endereco correto do valor correspondente em 7seg
+		ldreq	r2,[r2]										@ pega o valor em 7seg correspondente
+		ldreq	r0,=mostrador1
+		streqb	r2,[r0]										@ coloca o input do jogador da dezena no mostrador da dezena
+		cmp		r3,#2										@ compara r3 com 2 para saber se interrupcao do teclado ocorreu
+		ldreq	r2,=sequencia_unidade_jogador
+		ldreqb	r2,[r2]										@ pega o valor que esta guardado na variavel
+		ldreq	r0,=vetor_mostrador
+		addeq	r2,r2,r0									@ pega o endereco correto do valor correspondente em 7seg
+		ldreq	r2,[r2]										@ pega o valor em 7seg correspondente
+		ldreq	r0,=mostrador2
+		streqb	r2,[r0]										@ coloca o input do jogador da dezena no mostrador da dezena
+		moveq	r3,#0										@ zera r3 para o proximo input caso o jogador tenha acertado
+		beq		verifica_correcao							@ vai para uma funcao que verifica se os numeros colocados estao corretos
+		b		loop_resposta_jogador
 
+verifica_correcao:
 
-		ldr r0,=numeros        	@ carrega primeiro parâmetro
-		mov r1,#2           	@ carrega segundo parâmetro
-		bl  init_by_array   	@ inicializa
-		bl  genrand_int32  		@ chama gerador, resultado em r0
-		mov r1,#0xf				@minha mascara
-		and r0,r0,r1			@só fica ligado os 4 ultimos bits
-		cmp r0,#9				@comparo para ver se é maior q o numero comportado
-		movgt r0,#0 			@se for maior é automaticamente 0
-		ldrb r1,[r6,r0]  		@pego byte do valor no meu veotr de tab_digitos
-		ldr r0,=P_7mais 		@segundo valor no 7 seg
-		str r1,[r0]
-		strb r1,[r9],#1 		@ coloco no meu vetor e pulo para o proximo elemento
-		ldr r1,=t_ligado 		@2s em ms...será meu contador
-		ldr r1,[r1]
+		ldr		r0,=sequencia_dezena
+		add		r0,r0,r4									@ ajusta o numero da sequencia
+		ldrb	r0,[r0]										@ coloca em r0 o valor da sequencia que deve ser verificado
+		ldr		r2,=sequencia_dezena_jogador
+		ldrb	r2,[r2]										@ coloca o valor do input do jogador em r2
+		cmp		r0,r2										@ compara r2 e r0
+		bne		jogador_perdeu								@ caso os valores nao sejam iguais o jogador perdeu
+		ldr		r0,=sequencia_unidade
+		add		r0,r0,r4									@ ajusta o numero da sequencia
+		ldrb	r0,[r0]										@ coloca em r0 o valor da seuqencia que deve ser verificado
+		ldr		r2,=sequencia_unidade_jogador
+		ldrb	r2,[r2]										@ coloca o valor do input do jogador em r2
+		cmp		r0,r2										@ compara r2 e r0
+		bne		jogador_perdeu								@ caso os valores nao sejam iguais o jogador perdeu
+		add		r4,r4,#1									@ adiciona 1 no valor de numeros inseridos
+		mov		r0,#5										@ coloca 5 em r0 para marcar os 50ms ligados da entrada
+		mov		r2,#0x100									@ coloca 1042 em r2
+loop_50ms:
+		cmp		r0,#0										@ compara r0 com 0 para saber se a contagem dos 50ms ja passou
+		bne		loop_50ms									@ fica no loop enquanto nao passar os 50ms
+		cmp		r4,r5										@ compara r4 com r5
+		beq		jogador_ganhou								@ vai para a funcao onde o jogador ganhou
+		ldr		r2,=desliga
+		ldr		r0,=mostrador1
+		str		r2,[r0]										@ desliga o mostrador1
+		ldr		r0,=mostrador2
+		str		r2,[r0]										@ desliga o mostrador2
+		b		loop_resposta_jogador						@ volta para o loop de inputs do jogador_perdeu
 
+jogador_ganhou:
+		ldr		r2,=desliga
+		ldr		r2,[r2]										@ coloca o valor dos leds desligados em r2
+		ldr		r0,=leds
+		str		r2,[r0]										@ apaga os leds
+		mov		r2,#11										@ coloca 11 que eh correspondente a C
+		ldr		r0,=vetor_mostrador
+		add		r2,r2,r0									@ pega o endereco de C para o 7segs
+		ldr		r2,[r2]										@ pega o valor de C para o 7segs
+		mov		r1,#10										@ coloca o valor de 100ms em r1
+		mov		r3,#5										@ numero de vezes que tem que piscar
+		ldr		r0,=mostrador1
+		str		r2,[r0]										@ coloca C no mostrador 1
+		ldr		r0,=mostrador2
+		str		r2,[r0]										@ coloca C no mostrador 2
 
-loop_liga2s:
-		ldr r8,=flag
-		ldr r8,[r8]
-		cmp r8,#1
-		bne loop_liga2s			@enquanto nao ligo minha interrupção continuono loop
-		mov r8,#0 				@zero minha flag
-		ldr r0,=flag
-		str r8,[r0]
-		subs r1,r1,#1			@subtraio 1 no meu contador de tempo
-		blt apago				@se for menor q zero apago meus 7 seg
-		b loop_liga2s			@se nao volto para meu loop_liga2s
-apago:
-		mov r1,#0 				@apago o que tiver no r0
-		ldr r0,=P_7menos
-		str r1,[r0]				@coloco no 7 seg
-		ldr r0,=P_7mais 		@segundo valor no 7 seg mais significativo
-		str r1,[r0]
-		ldr r1,=t_desligado
-		ldr r1,[r1]				@r1 terá meu tempo desligado e será meu contador de tempo desligado
+loop_acertou_ligado:
+		cmp		r1,#0										@ compara r1 com 0
+		bne		loop_acertou_ligado							@ volta ao loop enquanto nao se passar 100ms
+		mov		r1,#10										@ coloca 100ms em r1
+		ldr		r2,=desliga
+		ldr		r0,=mostrador1
+		str		r2,[r0]										@ apaga mostrador 1
+		ldr		r0,=mostrador2
+		str		r2,[r0]										@ apaga mostrador 2
 
+loop_acertou_desligado:
+		cmp		r1,#0										@ compara com 0
+		bne		loop_acertou_desligado						@ volta ao loop enquanto nao se passar 100ms
+		subs	r3,#1										@ subtrai 1 do numero de vezes a se piscar
+		movne	r1,#11										@ coloca 100ms em r1 se nao foram piscadas as 5 vezes
+		movne	r2,#11										@ coloca 10 que eh correspondente a E se nao foram piscadas as 5 vezes
+		ldrne	r0,=vetor_mostrador
+		addne	r2,r2,r0									@ pega o endereco de E para o 7segs se nao foram piscadas as 5 vezes
+		ldrne	r2,[r2]										@ pega o valor de E para o 7segs se nao foram piscadas as 5 vezes
+		ldrne	r0,=mostrador1
+		strne	r2,[r0]										@ coloca E no mostrador 1 se nao foram piscadas as 5 vezes
+		ldrne	r0,=mostrador2
+		strne	r2,[r0]										@ coloca E no mostrador 2 se nao foram piscadas as 5 vezes
+		bne		loop_acertou_ligado							@ volta ao loop com o mostrador mostrando E se nao foram piscadas as 5 vezes
+		add		r5,r5,#1									@ soma 1 na fase do jogo
+		b		deslig
 
-loop_desliga1s:
-		ldr r8,=flag
-		ldr r8,[r8]
-		cmp r8,#1
-		bne loop_desliga1s		@enquanto nao ligo minha interrupção continuono loop
-		mov r8,#0 				@zero minha flag
-		ldr r0,=flag
-		str r8,[r0]
-		subs r1,r1,#1			@subtraio 1 no meu contador de tempo
-		blt seqliga				@se for menor q zero volto para ligar novamente outro numero aleatorio
-		b loop_desliga1s		@se nao volto para meu loop_liga2s
-@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@certo
+jogador_perdeu:
 
+		ldr		r2,=desliga
+		ldr		r2,[r2]										@ coloca o valor dos leds desligados em r2
+		ldr		r0,=leds
+		str		r2,[r0]										@ apaga os leds
+		mov		r2,#10										@ coloca 10 que eh correspondente a E
+		ldr		r0,=vetor_mostrador
+		add		r2,r2,r0									@ pega o endereco de E para o 7segs
+		ldr		r2,[r2]										@ pega o valor de E para o 7segs
+		mov		r1,#10										@ coloca o valor de 100ms em r1
+		mov		r3,#3										@ numero de vezes que tem que piscar
+		ldr		r0,=mostrador1
+		str		r2,[r0]										@ coloca E no mostrador 1
+		ldr		r0,=mostrador2
+		str		r2,[r0]										@ coloca E no mostrador 2
 
+loop_errou_ligado:
+		cmp		r1,#0										@ compara r1 com 0
+		bne		loop_errou_ligado							@ volta ao loop enquanto nao se passar 100ms
+		mov		r1,#10										@ coloca 100ms em r1
+		ldr		r2,=desliga
+		ldr		r0,=mostrador1
+		str		r2,[r0]										@ apaga mostrador 1
+		ldr		r0,=mostrador2
+		str		r2,[r0]										@ apaga mostrador 2
 
-temp_de_espera:
-		mov r3,#0				@será meu contador de tempo para meus leds
-		mov r1,#verde
-		ldr r0,=P_LEDS
-		ldr r2,=tab_digitos
-		str r1,[r0]				@coloco o verde no led para começar a contagem do tempo
+loop_errou_desligado:
+		cmp		r1,#0										@ compara com 0
+		bne		loop_errou_desligado						@ volta ao loop enquanto nao se passar 100ms
+		subs	r3,#1										@ subtrai 1 do numero de vezes a se piscar
+		movne	r1,#10										@ coloca 100ms em r1 se nao foram piscadas as 3 vezes
+		movne	r2,#10										@ coloca 10 que eh correspondente a E se nao foram piscadas as 3 vezes
+		ldrne	r0,=vetor_mostrador
+		addne	r2,r2,r0									@ pega o endereco de E para o 7segs se nao foram piscadas as 3 vezes
+		ldrne	r2,[r2]										@ pega o valor de E para o 7segs se nao foram piscadas as 3 vezes
+		ldrne	r0,=mostrador1
+		strne	r2,[r0]										@ coloca E no mostrador 1 se nao foram piscadas as 3 vezes
+		ldrne	r0,=mostrador2
+		strne	r2,[r0]										@ coloca E no mostrador 2 se nao foram piscadas as 3 vezes
+		bne		loop_errou_ligado							@ volta ao loop com o mostrador mostrando E se nao foram piscadas as 3 vezes
+		b		deslig
 
-		ldr r7,=fase			@r7 é o contador de fase
-		ldr r7,[r7]
-		ldr r9,=vetordedados	@r9 tem meu vetor auxiliar de daos q coletei na primeira parte do codigo
+mostra_numeros:
+		mov		r1,#10										@ coloca r1 como 10ms
+		ldr		r0,=timer
+		str		r1,[r0]										@ coloca o timer para rodar 10ms
+		ldr		r1,=tempo_ligado
+		add		r1,r1,r7
+		ldr		r1,[r1]										@ ajusta o tempo para a dificuldade do jogo
 
-esperoprimeirovalor:
-		ldr r8,=flag2
-		ldr r8,[r8]
-		cmp r8,#0
-		bne trato_teclado1
-		ldr r8,=flag
-		ldr r8,[r8]
-		cmp r8,#1				@verifico minha interrupção
-		bne esperoprimeirovalor
-		mov r8,#0
-		ldr r0,=flag
-		str r8,[r0]
-		add r3,r3,#1			@somo 1 no meu contador de tempo
-
-		ldr r0,=t_resp
-		ldr r0,[r0]
-		cmp r3,r0				@verifico se meu contador chegou no tempo final
-		bgt perdeu				@se passou o jogador perdeu
-		ldr r0,=trequat
-		ldr r0,[r0]
-		cmp r3,r0				@verifico se meu contador chegou em 3/4 do tempo
-		bgt ledsvermelhos1
-		ldr r0,=metade
-		ldr r0,[r0]
-		cmp r3,r0				@verifico se meu contador chegou na metade do tempo
-		bgt ledsamarelos1
-
-		b esperoprimeirovalor	@se nao volto para o loop
-
-ledsamarelos1:					@coloco amarelo nos leds
-		mov r1,#amar
-		ldr r0,=P_LEDS
-		str r1,[r0]
-		b esperoprimeirovalor
-
-ledsvermelhos1:					@coloco vermelho nos leds
-		mov r1,#verm
-		ldr r0,=P_LEDS
-		str r1,[r0]
-		b esperoprimeirovalor
-
-trato_teclado1:
-		ldr r2,=tab_digitos
-		ldr r0,=P_teclado_dado
-		ldr r0,[r0]				@r0 tem meu dado
-		ldrb r0,[r2,r0]			@vejo qual hexa tem o valor
-		ldr r1,=P_7menos		@7seg mais significativo
-		strb r0,[r1]			@coloco o valor no 7 seg
-		ldr r1,=aux1
-		str r0,[r1]
-		mov r10,r0
-esperosegundovalor:
-		ldr r8,=flag2
-		ldr r8,[r8]
-		cmp r8,#0
-		bne trato_teclado2
-		ldr r8,=flag
-		ldr r8,[r8]
-		cmp r8,#1				@verifico minha interrupção
-		bne esperosegundovalor
-		mov r8,#0
-		ldr r0,=flag
-		str r8,[r0]
-
-		add r3,r3,#1			@somo 1 no meu contador de tempo
-
-		ldr r0,=t_resp
-		ldr r0,[r0]
-		cmp r3,r0				@verifico se meu contador chegou no tempo final
-		bgt perdeu				@se passou o jogador perdeu
-		ldr r0,=trequat
-		ldr r0,[r0]
-		cmp r3,r0				@verifico se meu contador chegou em 3/4 do tempo
-		bgt ledsvermelhos2
-		ldr r0,=metade
-		ldr r0,[r0]
-		cmp r3,r0				@verifico se meu contador chegou na metade do tempo
-		bgt ledsamarelos2
-
-		b esperosegundovalor	@se nao volto para o loop
-
-ledsamarelos2:					@coloco amarelo nos leds
-		mov r1,#amar
-		ldr r0,=P_LEDS
-		str r1,[r0]
-		b esperosegundovalor
-
-ledsvermelhos2:					@coloco vermelho nos leds
-		mov r1,#verm
-		ldr r0,=P_LEDS
-		str r1,[r0]
-		b esperosegundovalor
-
-trato_teclado2:
-
-		ldr r0,=P_teclado_dado
-		ldr r0,[r0]				@r0 tem meu dado
-		ldrb r0,[r2,r0]			@vejo qual hexa tem o valor
-		ldr r1,=P_7mais			@7seg mais significativo
-		strb r0,[r1]				@coloco o valor no 7 seg
-		ldr r1,=aux2
-		str r0,[r1]
-
-		ldr r0,=aux1			@comparo o mais significativo
-		ldr r0,[r0]
-		ldrb r1,[r9],#1
-		cmp r0,r1
-		bne perdeu
-
-		ldr r0,=aux2			@comparo o menos significativo
-		ldr r0,[r0]
-		ldrb r1,[r9],#1
-		cmp r0,r1
-		bne perdeu
-		subs r7,r7,#1			@diminuo o contador de fases
-		beq ganhou 				@se acabou o cara ganhou
-		mov r0,#50				@conto meus 50 ms
-acertou:
-		ldr r8,=flag
-		ldr r8,[r8]
-		cmp r8,#1
-		bne acertou
-		mov r8,#0
-		ldr r1,=flag
-		str r8,[r1]
-		subs r0,r0,#1			@subtraio 1 ms
-		beq apagou2
-		b acertou
-
-apagou2:
-		mov r1,#0 				@apago o que tiver no r0
-		ldr r0,=P_7menos
-		str r1,[r0]				@coloco no 7 seg
-		ldr r0,=P_7mais 		@segundo valor no 7 seg mais significativo
-		str r1,[r0]				@apago meu display
-		b esperoprimeirovalor
-ganhou:
-		mov r3,#5 				@contador de pisca pisca
-
-		ldr r0,=fase
-		ldr r1,[r0]
-		add r1,r1,#1			@aumento uma fase
-		str r1,[r0]
-		ldr r2,[r2,#11]			@r2 tem c
-		ldr r0,=P_7mais			@ligo cc
-		str r2,[r0]
-		ldr r0,=P_7menos
-		str r2,[r0]
-		mov r4,#1				@estado 1 ligado
-prepapisca:
-		mov r1,#100 			@100 ms
-		cmp r3,#0
-		beq finish
-		cmp r4,#1
-		beq desligav
-		b ligav
-desligav:
-		ldr r8,=flag
-		ldr r8,[r8]
-		cmp r8,#1
-		bne desligav
-		mov r8,#0
-		ldr r0,=flag
-		str r8,[r0]
-		subs r1,r1,#1
-		blt  apagaluzes
-		b desligav
-ligav:
-		ldr r8,=flag
-		ldr r8,[r8]
-		cmp r8,#1
-		bne ligav
-		mov r8,#0
-		ldr r0,=flag
-		str r8,[r0]
-		subs r1,r1,#1
-		blt acendeluzes
-		b ligav
-
-apagaluzes:
-		mov r1,#0 				@apago o que tiver no r0
-		ldr r0,=P_7menos
-		str r1,[r0]				@coloco no 7 seg
-		ldr r0,=P_7mais 		@segundo valor no 7 seg mais significativo
-		str r1,[r0]				@apago meu display
-		mov r4,#0
-		b prepapisca
-acendeluzes:
-		ldr r0,=P_7menos
-		str r2,[r0]				@coloco no 7 seg
-		ldr r0,=P_7mais 		@segundo valor no 7 seg mais significativo
-		str r2,[r0]				@apago meu display
-		sub r3,r3,#1
-		mov r4,#1
-		b prepapisca
-
-perdeu:
-		mov r3,#3
-		ldr r2,=tab_digitos
-		ldr r2,[r2,#10]			@r2 tem c
-		ldr r0,=P_7mais			@ligo cc
-		str r2,[r0]
-		ldr r0,=P_7menos
-		str r2,[r0]
-		mov r4,#1				@estado 1 ligado
-prepapisca2:
-		mov r1,#100 			@100 ms
-		cmp r3,#0
-		beq finish
-		cmp r4,#1
-		beq desligav2
-		b ligav2
-desligav2:
-		ldr r8,=flag
-		ldr r8,[r8]
-		cmp r8,#1
-		bne desligav2
-		mov r8,#0
-		ldr r0,=flag
-		str r8,[r0]
-		subs r1,r1,#1
-		blt  apagaluzes2
-		b desligav2
-ligav2:
-		ldr r8,=flag
-		ldr r8,[r8]
-		cmp r8,#1
-		bne ligav2
-		mov r8,#0
-		ldr r0,=flag
-		str r8,[r0]
-		subs r1,r1,#1
-		blt acendeluzes2
-		b ligav2
-
-apagaluzes2:
-		mov r1,#0 				@apago o que tiver no r0
-		ldr r0,=P_7menos
-		str r1,[r0]				@coloco no 7 seg
-		ldr r0,=P_7mais 		@segundo valor no 7 seg mais significativo
-		str r1,[r0]				@apago meu display
-		mov r4,#0
-		b prepapisca2
-acendeluzes2:
-		ldr r0,=P_7menos
-		str r2,[r0]				@coloco no 7 seg
-		ldr r0,=P_7mais 		@segundo valor no 7 seg mais significativo
-		str r2,[r0]				@apago meu display
-		sub r3,r3,#1
-		mov r4,#1
-		b prepapisca2
-
-finish:
-		ldr r0,=P_TIMER
-		mov r1,#0
-		str r1,[r0]				@desligo meu timer
-		ldr r0,=P_7menos
-		str r1,[r0]				@coloco no 7 seg
-		ldr r0,=P_7mais 		@segundo valor no 7 seg mais significativo
-		str r1,[r0]				@apago meu display
-		ldr r0,=P_LEDS
-		str r1,[r0]
-		b comeco
-
-tratairq:
-		ldr r10,=flag 			@minha flag de 1 ms será r8
-		mov r9,#1
-		str r9,[r10]
-		movs pc,lr 				@volto da interrupção
-flag:
-	.word 0
-
-tratainterrupcao:
-		ldr r5,=flag2
-		mov r4,#1
-		str r4,[r5]
-		movs pc,lr
+loop_ligado:
+		cmp		r1,#0										@ verifica se o tempo do 7seg ligado ja passou
+		bne		loop_ligado									@ retorna para o loop ate que o tempo tenha passado
+		ldr		r1,=desliga
+		ldr		r1,[r1]
+		ldr		r0,=mostrador1
+		str		r1,[r0]										@ apaga o primeiro mostrador
+		ldr		r0,=mostrador2
+		str		r1,[r0]										@ apaga o segundo mostrador
+		ldr		r1,=tempo_desligado
+		add		r1,r1,r7									@ ajusta o tempo para a dificuldade do jogo
+		ldr		r1,[r1]										@ coloca o valor que o timer deve percorrer com o mostrador desligado
 
 
-flag2:
-	.word 0
-aux1:
-	.byte 0x7e
-aux2:
-	.byte 2
-vetordedados:					@ 2 vezes o numero de fases possiveis é o numero de bytes do meu vetor auxiliar 100 pq pode andar 1 a mais
-	.skip 2*100
-t_ligado:
-	.word 0
-t_desligado:
-	.word 0
-fase:
-	.word 1
-velo:
-	.word 1
-t_resp:
-	.word 0
-metade:
-	.word 0
-trequat:
-	.word 0
-cincoseg:
-	.word 5000
-tab_digitos:
-        .byte 0x7e,0x30,0x6d,0x79,0x33,0x5b,0x5f,0x70,0x7f,0x7b,0x4f,0x4e @0-9 E C
-.data
-numeros:
-        .long 0x123
-        .long 0x234
-        .long 0x345
-        .long 0x456
+loop_desligado:
+		cmp		r1,#0										@ verifica se o tempo do 7seg desligado ja passou
+		bne		loop_desligado								@ retorna para o loop ate que o tempo tenha passado
+		b		gera_numeros								@ volta ao mostrador de numeros
+
+
+
+tratador_interrupcao:
+
+		cmp		r6,#0x00									@ verifica se a interrupcao ocorreu quando o jogo estava desligado
+		beq		tratador_desligado							@ pula para o tratador de interrupcoes deligado
+		cmp		r6,#0x01									@ verifica se a interrupcao ocorreu quando o jogo estava ligado
+		beq		tratador_ligado								@ pula para o tratador de interrupcoes ligado
+		movs		pc,lr									@ finaliza o processo
+
+tratador_ligado:
+
+		ldr		r8,=keyboardE
+		ldr		r8,[r8]										@ pega o valor do estado de keyboard
+		cmp		r8,#0x01									@ compara o estado do keyboard com 1 para saber se a interrupcao foi causada pelo keyboard
+		beq		tratador_keyboard							@ caso seja uma interrupcao causada pelo keyboard pula para o tratamento
+		bne		tratador_timer								@ caso seja uma interrupcao causada pelo timer pula para o tratamento
+
+tratador_timer:
+
+		sub		r1,#1										@ subtrai 1 do contador de tempo
+		cmp		r2,#0x100									@ verifica se r0 esta no modo de timer
+		subeq	r0,#1										@ subtrai 1 de r0
+		movs		pc,lr									@ volta para a parte do programa onde ocorreu a interrupcao
+
+tratador_keyboard:
+		mov		r2,#0x01									@ coloca 1 em r2
+		and		r2,r3										@ coloca em r2 se o numero de r3 eh par ou impar
+		cmp		r2,#0x00									@ verifica se r2 eh impar ou par
+		ldreq	r2,=keyboardD
+		ldreq	r2,[r2]										@ pega o valor do dado de keyboardD	se r3 for par
+		ldreq	r0,=sequencia_dezena_jogador
+		streqb	r2,[r0]										@ guarda o valor do dado na variavel de dezena do jogador se r3 for par
+		ldrne	r2,=keyboardD
+		ldrne	r2,[r2]										@ pega o valor do dado de keyboardD se r3 for impar
+		ldrne	r0,=sequencia_unidade_jogador
+		strneb	r2,[r0]										@ guarda o valor do dado na variavel de unidade do jogador se r3 for impar
+		add		r3,r3,#1									@ soma 1 no numero de inputs feitos pelo jogador
+		movs	pc,lr										@ volta para a parte do programa onde ocorreu a interrupcao
+
+
+tratador_desligado:
+
+		ldr		r0,=slider
+		ldr		r1,[r0]										@ salva em r1 o valor que esta no slider
+		sub		r1,r1,#1									@ modifica r1 para que possa ser usado no vetor de velocidades
+		add		r1,r1,r1									@ multiplica r1 por 2
+		add		r1,r1,r1									@ multiplica r1 por 4
+		cmp		r7,r1										@ compara r1 com r7, sendo que r7 salva a dificuldade do jogo
+		bne		muda_dificuldade							@ vai para a funcao que muda a dificuldade
+
+		ldr		r0,=botao
+		ldr		r1,[r0]										@ coloca em r1 o estado do botao
+		cmp		r1,#1										@ verifica se o botao foi pressionado
+		moveq		r4,#1									@ coloca a flag de que o botao foi pressionado em r4
+		movs		pc,lr									@ finaliza o tratamento de interrupcoes quando o jogo esta desligado
+
+
+muda_dificuldade:
+
+		mov		r7,r1										@ seta a nova dificuldade do jogo
+		movs		pc,lr									@ finaliza o tratamento de interrupcao quando se muda o slider
+
+sequencia_unidade_jogador:									@ variavel da unidade
+	.skip	0x0f
+
+sequencia_dezena_jogador:									@ variavel da dezena
+	.skip	0x0f
+
+sequencia_unidade:											@ sequencia da unidade
+	.skip	0x0f
+
+sequencia_dezena:											@ sequencia da dezena
+	.skip	0x0f
+
+vetor_mostrador:											@ vetor de 7seg 0 a 9, E, C
+	.byte   0x7E, 0x30, 0x6D, 0x79, 0x33, 0x5B, 0x5F, 0x70, 0x7F, 0x73, 0x4f, 0x4e
+
+tempo_resposta:												@ vetor de tempo Tlig
+	.word	500, 450, 400, 350, 300
+
+tempo_ligado:												@ vetor de tempo Tlig
+	.word	200, 190, 180, 170, 160
+
+tempo_desligado:											@ vetor de tempo Tdesl
+	.word	100, 90, 80, 70, 60
