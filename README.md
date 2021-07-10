@@ -1,13 +1,13 @@
 # Little Study Cases  About ARM/LEG language 
 
 ## case 00 
-MC404 -- case 00 -- Familiarização com as ferramentas LEG
+ -- case 00 -- Familiarização com as ferramentas LEG
 Nesta case você vai se familiarizar com as ferramentas para o processador LEG: o montador (lasm) e o simulador (legsim).
 
 1) Instalando as ferramentas
 O montador lasm e o simulador legsim são programas em java, que você deve copiar para o seu computador. Para instalar os dois programas, siga as instruções na página Ferramentas LEG.
 
-Opcionalmente, você pode usar um ambiente especialmente preparado para MC404 no Cloud 9. Para isso será necessário que você envie uma solicitação de registro para ranido arroba ic ponto unicamp ponto br. Você receberá um convite que permitirá cadastrar-se no Cloud 9 sem necessidade de informar um cartão de crédito.
+Opcionalmente, você pode usar um ambiente especialmente preparado para  no Cloud 9. Para isso será necessário que você envie uma solicitação de registro para ranido arroba ic ponto unicamp ponto br. Você receberá um convite que permitirá cadastrar-se no Cloud 9 sem necessidade de informar um cartão de crédito.
 
 2) case
 Escreva um programa para calcular o valor da expressão
@@ -119,12 +119,11 @@ g start
 
 no terminal. Observe que você pode usar no simulador rótulos definidos no seu programa (como start). Verifique o registrador r0 tem o resultado correto da expressão dada.
 Submeta o seu programa-fonte em linguagem de montagem do LEG, usando o sistema Susy. O arquivo de submissão deve chamar-se case00.s, e a primeira instrução de seu programa deve estar no endereço 0x200.
-Peso
-O peso deste lab na composição da nota é 1.
+
 
 ## case 01 
 
-MC404 -- case 01 -- Invertendo uma sequência de caracteres
+ -- case 01 -- Invertendo uma sequência de caracteres
 Escreva um programa em linguagem de montagem LEG para inverter uma dada cadeia de caracteres ASCII. Por exemplo, se a cadeia de entrada é
 
 ABCDEF1234
@@ -139,13 +138,12 @@ Saída
 A cadeia de caracteres invertida deve iniciar também no endereço 0x1000 (ou seja, a cadeia deve ser invertida no mesmo lugar em que é dada).
 Submissão
 Você deve submeter o seu programa-fonte em linguagem de montagem LEG. O arquivo de submissão deve chamar-se case01.s. A primeira instrução a ser executada pelo seu programa deve estar no endereço de rótulo start.
-Peso
-O peso deste lab na composição da nota é 1.
+
 
 
 ## case 02
 
-MC404 -- case 02 -- Soma de vetores
+ -- case 02 -- Soma de vetores
 São fornecidos
 
 um vetor de inteiros sem sinal, de 16 bits, com elementos armazenados consecutivamente (dois elementos por palavra) a partir do endereço 0x108, de rótulo vetor;
@@ -158,13 +156,12 @@ A primeira instrução a ser executada pelo seu programa deve estar no endereço
 
 Submissão
 Você deve submeter o seu programa-fonte em linguagem de montagem LEG. O arquivo de submissão deve chamar-se case02.s. O número máximo de submissões no Susy é 10. Teste exaustivamente seu programa localmente, usando o simulador LEG; não use o Susy como ferramenta de teste!
-Peso
-O peso deste lab na composição da nota é 1.
+
 
 
 ## case 03
 
-MC404 -- case 03 -- Soma de vetor de 64 bits
+ -- case 03 -- Soma de vetor de 64 bits
 Parte A
 Escreva uma função de nome add64 com dois parâmetros, que são números inteiros sem sinal de 64 bits, passados pela pilha, e calcule a soma desses dois números, retornando o resultado nos registradores r1 (palavra mais significativa do resultado) e r0 (palavra menos significativa do resultado). Sua função pode desconsiderar erros de estouro de campo.
 
@@ -206,14 +203,13 @@ Ao terminar seu programa deve executar a instrução HLT (interrompe processamen
 
 Submissão
 Você deve submeter o seu programa-fonte em linguagem de montagem LEG. O arquivo de submissão deve chamar-se case03.s. O número máximo de submissões no Susy é 10. Teste exaustivamente seu programa localmente, usando o simulador LEG; não use o Susy como ferramenta de teste!
-Peso
-O peso deste lab na composição da nota é 1.
+
 
 
 
 ## case 04
 
-MC404 -- case 04 -- Calculadora binária
+ -- case 04 -- Calculadora binária
 Nesta case você deve construir uma calculadora binária. Para simplificar, a calculadora vai ter apenas uma operação, de multiplicação. E para simplificar ainda mais, o valor inicial da calculadora deve ser 1. Esta case não pode ser feita no Cloud 9, pois este não tem suporte para elementos gráficos como os leds e o teclado!
 
 Parte A
@@ -247,8 +243,7 @@ Por razões de testes no Susy, você não deve utilizar a memória abaixo do end
 
 Submissão
 Você deve submeter o seu programa-fonte em linguagem de montagem LEG. O arquivo de submissão deve chamar-se case04.s. O número máximo de submissões no Susy é 10. Teste exaustivamente seu programa localmente, usando o simulador LEG; não use o Susy como ferramenta de teste!
-Peso
-O peso deste lab na composição da nota é 1.
+
 
 ## case 05
 
@@ -300,14 +295,13 @@ O usuário sempre vai digitar apenas um dígito, e esperar o temporizador contar
 O usuário não vai pressionar as teclas '*' ou '#'.
 Submissão
 Você deve submeter o seu programa-fonte em linguagem de montagem LEG. O arquivo de submissão deve chamar-se case05.s. O número máximo de submissões no Susy é 10. Teste exaustivamente seu programa localmente, usando o simulador LEG; não use o Susy como ferramenta de teste!
-Peso
-O peso deste lab na composição da nota é 1.
+
 
 
 
 ## case 06
 
-MC404 -- case 06 -- Tudo em Maiúsculas
+ -- case 06 -- Tudo em Maiúsculas
 Escreva um programa que leia do console uma cadeia de caracteres ASCII, com no máximo 256 caracteres, transforme as letras minúsculas da cadeia em maiúsculas, e escreva o resultado de volta no console. Ao final o registrador r10 deve conter o número de letras que foram alteradas.
 
 Para escrever no console seu programa deve usar as chamadas ao sistema read e write. Consulte no manual de dispositivos a forma de utilização do console.
@@ -336,8 +330,7 @@ Esta case não pode ser feita no Cloud 9, pois este não tem suporte para elemen
 
 Submissão
 Você deve submeter o seu programa-fonte em linguagem de montagem LEG. O arquivo de submissão deve chamar-se case06.s. O número máximo de submissões no Susy é 10. Teste exaustivamente seu programa localmente, usando o simulador LEG; não use o Susy como ferramenta de teste!
-Peso
-O peso deste lab na composição da nota é 1.
+
 Dicas
 O parâmetro r0 da chamada ao sistema exit deve ser igual a zero, para indicar que o programa terminou de executar sem erros.
 Note que a diferença na representação ASCII entre uma letra maiúscula e uma minúscula é apenas um bit; portanto basta trocar o valor desse bit para transformar uma letra de maiúscula para minúscula (e vice-versa).
@@ -346,7 +339,7 @@ Note que é necessáro usar a opção "-c" do legsim para "caregar" o dispositiv
 
 ## case 07
 
-MC404 -- case 07 -- Familiarização com as ferramentas ARM
+ -- case 07 -- Familiarização com as ferramentas ARM
 Nesta case você vai se familiarizar com as ferramentas para o processador ARM: os programas da família GNU (montador e ligador) e o simulador (armsim).
 
 Instalando as ferramentas
@@ -371,8 +364,7 @@ Submissão
 Você deve submeter o seu programa-fonte em linguagem de montagem ARM. O arquivo de submissão deve chamar-se case07.s, e a primeira instrução de seu programa deve estar no endereço de rótulo _start. Por razões de testes no Susy, o rótulo deve _start estar no endereço 0x1000 (use a diretiva .org).
 O número máximo de submissões no Susy é 10. Teste exaustivamente seu programa localmente, usando o simulador armsim; não use o Susy como ferramenta de teste!
 
-Peso
-O peso deste lab na composição da nota é 1.
+
 Dicas
 Tem um exemplo de programa ARM usando as chamadas ao sistema write e exit nas notas de aula!
 A instrução de chamada ao sistema swi no ARM é muito similar à instrução de chamada de sistema do sys LEG.
@@ -383,7 +375,7 @@ Nesta case você tem apenas introduzir a cadeia no programa.
 
 ## case 08 
 
-MC404 -- case 08 -- Palíndromo em bits
+ -- case 08 -- Palíndromo em bits
 Escreva um programa em linguagem de montagem ARM para
 
 ler do console uma cadeia de caracteres hexa (0-9 e A-F); o número de caracteres lidos pode estar entre 1 e 8 (o valor tem no máximo 32 bits).
@@ -398,13 +390,12 @@ Submissão
 Você deve submeter o seu programa-fonte em linguagem de montagem ARM. O arquivo de submissão deve chamar-se case08.s, e a primeira instrução de seu programa deve estar no endereço de rótulo _start.
 O número máximo de submissões no Susy é 10. Teste exaustivamente seu programa localmente, usando o simulador armsim; não use o Susy como ferramenta de teste!
 
-Peso
-O peso deste lab na composição da nota é 1.
+
 
 
 ## case 10
 
-MC404 -- case 10 -- Semáforos com temporizador
+ -- case 10 -- Semáforos com temporizador
 Nesta case vamos exercitar o uso de interrupções, e também usar um novo dispositivo: o temporizador (timer).
 
 O temporizador é um dispositivo que gera uma interrupção a cada intervalo de tempo programado. O temporizador tem apenas uma porta de dados, de escrita apenas, que é usada para programar o intervalo de tempo. Escrever um valor X na porta do temporizador faz com que o temporizador gere uma interrupção a cada X milisegundos. Escrever o valor zero na porta do temporizador faz com que o temporizador pare de gerar interrupções. No arquivo de dispositivos para o simulador armsim, o formato de descrição de um temporizador é:
@@ -461,13 +452,12 @@ O número máximo de submissões no Susy é 10.
 Dicas
 Os nomes dos painéis não são fixos; você pode usar o que quiser. Mas os endereços dados acima devem ser obedecidos.
 Organize o seu código de forma que o programa execute o menor tempo possível na rotina de tratamento de interrupção. Embora no caso deste lab isso não tenha muita importância, já que há apenas uma interrupção, em um sistema real há em geral várias outras interrupções, de forma que a melhor forma de garantir que todas as interrupções serão atendidas é executar o programa, sempre que possível, em modo usuário.
-Peso
-O peso deste lab na composição da nota é 1.
+
 
 
 ## case 11 
 
-MC404 -- case 11 -- Jogo da Memória
+ -- case 11 -- Jogo da Memória
 Escreva um programa para implementar um Jogo de Memória simples. O jogo tem um teclado, um mostrador de dois dígitos de sete segmentos, um painel com três leds (verde, amarelo e vermelho) um botão do tipo "push" e um controle deslizante (slider). O mostrador de dois dígitos vai ser usado para mostrar números que devem ser memorizados. O controle deslizante vai ser utilizado para determinar a velocidade do jogo, e deve variar em uma escala de 1 (mais lento) a 5 (mais rápido). O controle deslizante inicia na posição 1. O painel de leds vai ser utilizado para mostrar o estado do jogo. O botão vai ser utilizado para iniciar o jogo.
 
 A cada jogada, o programa mostra uma sequência aleatória de F números entre 00 e 99, onde F é a Fase do jogo. O jogo inicia na Fase 1 (ou seja, mostrando uma sequência de apenas um número). O jogador deve então digitar no teclado a sequência mostrada. Se o jogador acerta a sequência, o jogo passa para a Fase seguinte (F é incrementado, e na jogada seguinte a sequência de números tem um número a mais); se o jogador erra, a Fase do jogo permanece a mesma.
